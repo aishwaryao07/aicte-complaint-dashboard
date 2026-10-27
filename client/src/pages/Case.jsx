@@ -152,17 +152,21 @@ export default function Case() {
 
       <h2>Timeline</h2>
       <ul className="timeline">
-        {audit.map((a) => (
-          <li key={a._id}>
-            <div className="when">{new Date(a.createdAt).toLocaleString()}</div>
-            <div>
-              <strong>{a.action.replace('_', ' ')}</strong>
-              {a.from ? ` : ${a.from} → ${a.to}` : a.to ? ` : ${a.to}` : ''}
-            </div>
-            <div className="muted">Reason: {a.reason} • By: {a.actor}</div>
-          </li>
-        ))}
-      </ul>
+  {audit.map((a) => (
+    <li key={a._id}>
+      <div className="when">{new Date(a.createdAt).toLocaleString()}</div>
+      <div className="what">
+        {a.action.replaceAll('_', ' ')}
+        {(a.from || a.to) && (
+          <span className="change">
+            {a.from ? `${a.from} → ${a.to}` : a.to}
+          </span>
+        )}
+      </div>
+      <div className="meta">Reason: {a.reason} • By: {a.actor}</div>
+    </li>
+  ))}
+    </ul>
     </div>
   );
 }
