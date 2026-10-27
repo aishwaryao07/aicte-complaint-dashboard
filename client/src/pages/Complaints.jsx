@@ -63,7 +63,7 @@ export default function Complaints() {
         <tbody>
           {complaints.map((c) => (
             <tr key={c.caseId}>
-              <td>{c.caseId}</td>
+              <td><Link to={`/cases/${c.caseId}`}>{c.caseId}</Link></td>
               <td>
                 <Link to={`/institutions/${c.institutionId}`}>{c.institutionId}</Link>
               </td>

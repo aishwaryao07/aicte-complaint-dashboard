@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard';
 import Complaints from './pages/Complaints';
 import Institutions from './pages/Institutions';
 import Institution from './pages/Institution';
+import Case from './pages/Case';
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
           <Route path="/complaints" element={<Complaints />} />
           <Route path="/institutions" element={<Institutions />} />
           <Route path="/institutions/:id" element={<Institution />} />
-          <Route path="/cases/:caseId" element={<p>Case page coming in Step 19.</p>} />
+          <Route path="/cases/:caseId" element={<Case />} />
         </Routes>
       </div>
     </BrowserRouter>
