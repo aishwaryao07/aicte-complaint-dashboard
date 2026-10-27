@@ -43,6 +43,8 @@ async function findRelated(caseId) {
       if (sameCategory && sim >= 0.3) confidence = 'High';
       else if (sameCategory || sim >= 0.3) confidence = 'Medium';
 
+      const review = (base.relatedCases || []).find((r) => r.caseId === o.caseId);
+
       return {
         caseId: o.caseId,
         bureau: o.bureau,
@@ -51,6 +53,7 @@ async function findRelated(caseId) {
         confidence,
         similarity: Math.round(sim * 100) / 100,
         reasons,
+        reviewStatus: review ? review.reviewStatus : 'Suggested',
       };
     })
     .sort((x, y) => RANK[y.confidence] - RANK[x.confidence] || y.similarity - x.similarity);

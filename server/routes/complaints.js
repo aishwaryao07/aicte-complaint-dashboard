@@ -115,4 +115,46 @@ router.get('/:caseId/audit', async (req, res) => {
   }
 });
 
+// POST /api/complaints/:caseId/links  (confirm or reject a suggested relationship)
+router.post('/:caseId/links', async (req, res) => {
+  try {
+    const { relatedCaseId, decision, reason, actor = 'demo.officer' } = req.body;
+
+    if (!relatedCaseId || !decision) return res.status(400).json({ error: 'relatedCaseId and decision are required' });
+    if (!['Confirmed', 'Rejected'].includes(decision)) return res.status(400).json({ error: 'decision must be Confirmed or Rejected' });
+    if (!reason || !reason.trim()) return res.status(400).json({ error: 'A reason is required' });
+    if (relatedCaseId === req.params.caseId) return res.status(400).json({ error: 'A case cannot be linked to itself' });
+
+    const [a, b] = await Promise.all([
+      Complaint.findOne({ caseId: req.params.caseId }),
+      Complaint.findOne({ caseId: relatedCaseId }),
+    ]);
+    if (!a || !b) return res.status(404).json({ error: 'Case not found' });
+
+    // Store the decision on both cases so each one shows the link
+    const setLink = (doc, otherId) => {
+      const existing = doc.relatedCases.find((r) => r.caseId === otherId);
+      if (existing) {
+        existing.reviewStatus = decision;
+        existing.reason = reason;
+      } else {
+        doc.relatedCases.push({ caseId: otherId, reviewStatus: decision, reason });
+      }
+    };
+    setLink(a, b.caseId);
+    setLink(b, a.caseId);
+    await Promise.all([a.save(), b.save()]);
+
+    const action = decision === 'Confirmed' ? 'LINK_CONFIRMED' : 'LINK_REJECTED';
+    await AuditLog.insertMany([
+      { caseId: a.caseId, action, from: a.caseId, to: b.caseId, reason, actor },
+      { caseId: b.caseId, action, from: b.caseId, to: a.caseId, reason, actor },
+    ]);
+
+    res.json(withOverdue(a.toObject()));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
