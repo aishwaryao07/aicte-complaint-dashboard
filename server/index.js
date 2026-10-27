@@ -8,6 +8,9 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.use('/api/complaints', require('./routes/complaints'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/institutions', require('./routes/institutions'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
